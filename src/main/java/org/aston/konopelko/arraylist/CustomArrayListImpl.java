@@ -1,29 +1,25 @@
 package org.aston.konopelko.arraylist;
 
 
-import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * Класс CustomArrayListImpl представляет собой реализацию динамического массива.
  * CustomArrayListImpl позволяет добавлять, получать, удалять и сортировать элементы, как и в обычному массиву.
  */
 
-public class CustomArrayListImpl<E extends Comparable<E>> implements CustomArrayList<E> {
+public class CustomArrayListImpl<E> implements CustomArrayList<E> {
 
     /**
-     * Размер списка по умолчанию.
+     * Изначальный размер списка.
      */
     private static final int DEFAULT_CAPACITY = 10;
 
     /**
      * Массив, содержащий элементы типа E.
      */
-    private E[] values;
-
-    /**
-     * Экземпляр класса указаный в дженерике.
-     */
-    private final Class<E> clazz;
+    private Object[] values;
 
     /**
      * Кол-во элементов, хранящихся в списке.
@@ -31,28 +27,26 @@ public class CustomArrayListImpl<E extends Comparable<E>> implements CustomArray
     private int size;
 
     /**
-     * Конструктор без заданного объёма.
+     * Пустой CustomArrayListImpl с изначальным размером списка.
      */
-    public CustomArrayListImpl(Class<E> clazz) {
-        this.clazz = clazz;
+    public CustomArrayListImpl() {
         this.size = 0;
-        values = (E[]) Array.newInstance(clazz, DEFAULT_CAPACITY);
+        values = new Object[DEFAULT_CAPACITY];
     }
 
     /**
-     * Конструктор с заданным объёмом.
+     * Проверка CustomArrayListImpl.
      */
-    public CustomArrayListImpl(Class<E> clazz, int capacity) {
-        this.clazz = clazz;
+    public CustomArrayListImpl(int capacity) {
         this.size = 0;
         if (capacity < 0) {
             throw new RuntimeException(String.format("Capacity %s incorrect", capacity));
         }
-        values = (E[]) Array.newInstance(clazz, capacity);
+        values = new Object[capacity];
     }
 
     /**
-     * Добавляет нужный элемент в конец списка.
+     * Добавляет нужный элемент по нужному индексу, со сдвигом всех последующих элементов в правую сторону.
      */
     @Override
     public boolean add(E e) {
@@ -62,8 +56,8 @@ public class CustomArrayListImpl<E extends Comparable<E>> implements CustomArray
                 size++;
                 return true;
             }
-            E[] previous = values;
-            values = (E[]) Array.newInstance(clazz, previous.length + previous.length / 2);
+            Object[] previous = values;
+            values = new Object[previous.length + previous.length / 2];
             System.arraycopy(previous, 0, values, 0, previous.length);
             values[size] = e;
             size++;
@@ -75,21 +69,26 @@ public class CustomArrayListImpl<E extends Comparable<E>> implements CustomArray
     }
 
     /**
-     * Возвращает нужный элемент по переданому индексу.
+     * Возвращает нужный элемент по нужному индексу.
      */
     @Override
     public E get(int index) {
         return (E) values[index];
     }
 
+    @Override
+    public void set(int index, E e) {
+        values[index] = e;
+    }
+
     /**
-     * Удаляет нужный элемент по переданому индексу, со сдвигом всех элементов в левую сторону.
+     * Удаляет нужный элемент по нужному индексу, со сдвигом всех элементов в левую сторону.
      */
     @Override
     public void delete(int index) {
         try {
             Object[] first = values;
-            values = (E[]) Array.newInstance(clazz, first.length - 1);
+            values = new Object[first.length - 1];
             System.arraycopy(first, 0, values, 0, index);
             int amountElementsAfterIndex = first.length - index - 1;
             System.arraycopy(first, index + 1, values, index, amountElementsAfterIndex);
@@ -103,61 +102,22 @@ public class CustomArrayListImpl<E extends Comparable<E>> implements CustomArray
      */
     @Override
     public void clean() {
-        values = (E[]) Array.newInstance(clazz, values.length);
+        values = new Object[values.length];
     }
 
     /**
-     * Сортирует все элементы из списка по принципу алгоритма сортировки QuickSort.
+     * Сортирует все элементы из нашего списка.
      */
     @Override
-    public void sort() {
-        int from = 0;
-        int to = size - 1;
-        quickSort(values, from, to);
+    public void sort(Comparator<E> comparator) {
+        Arrays.sort((E[]) values, 0, size, comparator);
     }
+
     /**
      * Возвращает кол-во элементов.
      */
     @Override
     public int length() {
         return size;
-    }
-
-    private void quickSort(E[] array, int from, int to) {
-        if (from < to) {
-            int divideIndex = partition(array, from, to);
-            quickSort(array, from, divideIndex - 1);
-            quickSort(array, divideIndex, to);
-        }
-    }
-
-    private int partition(E[] arr, int from, int to) {
-        int rightIndex = to;
-        int leftIndex = from;
-
-        E pivot = arr[from + (to - from) / 2];
-        while (leftIndex <= rightIndex) {
-
-            while (arr[leftIndex].compareTo(pivot) < 0) {
-                leftIndex++;
-            }
-
-            while (arr[rightIndex].compareTo(pivot) > 0) {
-                rightIndex--;
-            }
-
-            if (leftIndex <= rightIndex) {
-                swap(arr, rightIndex, leftIndex);
-                leftIndex++;
-                rightIndex--;
-            }
-        }
-        return leftIndex;
-    }
-
-    private void swap(E[] array, int index1, int index2) {
-        E tmp = array[index1];
-        array[index1] = array[index2];
-        array[index2] = tmp;
     }
 }
