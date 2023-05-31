@@ -30,6 +30,17 @@ public class CustomArrayListTest {
         names.add("Oleg");
         Assertions.assertEquals(newName, names.get(names.length() - 1));
     }
+    @Test
+    public void successfulAdditionWithIndex(){
+        String newName = "Oleg";
+        final CustomArrayList<String> names = TestUtil.buildNamesList();
+        Assertions.assertEquals(5,names.length());
+        Assertions.assertEquals("Igor",names.get(2));
+        names.add(2,newName);
+        Assertions.assertEquals(6,names.length());
+        Assertions.assertEquals("Igor",names.get(3));
+        Assertions.assertEquals(newName,names.get(2));
+    }
 
     @ParameterizedTest
     @MethodSource(value = "provideSuccessGetData")

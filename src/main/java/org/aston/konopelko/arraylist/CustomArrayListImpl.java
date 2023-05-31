@@ -68,6 +68,39 @@ public class CustomArrayListImpl<E> implements CustomArrayList<E> {
         return false;
     }
 
+    @Override
+    public boolean add(int index, E e) {
+        try {
+            if (index > size || index < 0) {
+                throw new RuntimeException(String.format("Incorrect index: %s", index));
+            }
+            Object[] previous = values;
+            values = size == values.length
+                    ? new Object[previous.length + previous.length / 2]
+                    : new Object[previous.length];
+            System.arraycopy(previous,0,values,0,previous.length);
+            System.arraycopy(previous, index, values, index + 1, size - index);
+            values[index] = e;
+            size++;
+            return true;
+        } catch (ClassCastException exception){
+            exception.printStackTrace();
+        }
+        return false;
+    }
+
+//    public void add(int index, E element) {
+//        if (index < 0 || index > size) {
+//            throw new IndexOutOfBoundsException("Index out of range: " + index);
+//        }
+//        if (size == values.length) {
+//            increaseCapacity();
+//        }
+//        System.arraycopy(values, index, values, index + 1, size - index);
+//        values[index] = element;
+//        size++;
+//    }
+
     /**
      * Возвращает нужный элемент по нужному индексу.
      */
